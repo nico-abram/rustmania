@@ -2,6 +2,8 @@ language: rust
 
 rust:
   - nightly
+  - beta
+  - stable
 
 cache:
   - apt
@@ -12,6 +14,10 @@ matrix:
     - env: ARCH=i686-unknown-linux-gnu
       os: linux
     - env: ARCH=x86_64-unknown-linux-gnu
+      os: linux
+    - env: 
+        - ARCH=x86_64-unknown-linux-gnu
+        - DO_LINT=YES
       os: linux
     - env: ARCH=i686-pc-windows-msvc
       os: windows
@@ -30,12 +36,15 @@ addons:
       - pkg-config
 
 before_script:
-  - rustup component add clippy
   - rustup update
+  - rustup component add clippy
   - rustup target add $ARCH
 
 script:
   - cargo test --target=$ARCH
-  - cargo fmt -- --check
-  - cargo clippy --all-targets --all-features
-  # -- -D warnings
+  - |
+    if [ $DO_LINT == "YES" ]; then
+      cargo clippy --all-targets --all-features;
+      cargo fmt -- --check
+      # -- -D warnings
+    fi
