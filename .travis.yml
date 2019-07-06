@@ -1,0 +1,37 @@
+language: rust
+
+cache:
+  - apt
+  - cargo
+
+matrix:
+  include:
+    - env: ARCH=i686-unknown-linux-gnu
+      os: linux
+    - env: ARCH=x86_64-unknown-linux-gnu
+      os: linux
+    - env: ARCH=i686-pc-windows-msvc
+      os: windows
+    - env: ARCH=x86_64-pc-windows-msvc
+      os: windows
+    - env: ARCH=x86_64-apple-darwin
+      os: osx
+    - env: ARCH=i686-apple-darwin
+      os: osx
+
+addons:
+  apt:
+    packages:
+      - libasound2-dev
+      - libudev-dev
+      - pkg-config
+
+before_script:
+  - rustup component add clippy
+  - rustup update
+  - rustup target add $ARCH
+
+script:
+  - cargo test --target=$ARCH
+  - cargo fmt -- --check
+  - cargo clippy --all-targets --all-features -- -D warnings
